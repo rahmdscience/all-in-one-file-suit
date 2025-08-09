@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>All in One File Suite - Edisi Final</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Libraries -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <!-- Library for DOCX Preview -->
+    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.1.15/dist/docx-preview.min.js"></script>
+
+    <style>
+      :root {
+        --bg-color: #0d0d0f;
+        --card-color: rgba(23, 25, 35, 0.5);
+        --border-color: rgba(255, 255, 255, 0.1);
+        --glow-color: rgba(0, 191, 255, 0.5);
+      }
+      body {
+        font-family: "Inter", sans-serif;
+        padding-top: 100px;
+        background-color: var(--bg-color);
+        color: #e5e7eb;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      .flex-grow {
+        flex-grow: 1;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+            circle at 15% 25%,
+            rgba(0, 128, 255, 0.2) 0%,
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 85% 75%,
+            rgba(138, 43, 226, 0.2) 0%,
+            transparent 25%
+          );
+        animation: aurora 20s infinite linear;
+        z-index: -1;
+      }
+      @keyframes aurora {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .drop-zone {
+        background: rgba(17, 24, 39, 0.6);
+        backdrop-filter: blur(10px);
+        border: 2px dashed var(--border-color);
+        transition: all 0.3s ease;
+      }
+      .drop-zone:hover,
+      .drop-zone-over {
+        border-color: var(--glow-color);
+        box-shadow: 0 0 20px rgba(0, 191, 255, 0.2);
+      }
+      .file-info-card {
+        background: var(--card-color);
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+      }
+      .file-info-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        border-color: var(--glow-color);
+        box-shadow: 0 0 25px rgba(0, 191, 255, 0.25);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.6s ease-out forwards;
+      }
+      .modal-overlay {
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+      }
+      .modal-content {
+        background: #111827;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
+      }
+      .modal-content pre,
+      .modal-content iframe {
+        max-height: 80vh;
+      }
+      @keyframes fade-in-out {
+        0%,
+        100% {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        10%,
+        90% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .notification {
+        animation: fade-in-out 3s ease-in-out forwards;
+      }
+      .btn-primary {
+        background: linear-gradient(90deg, #007cf0, #00dfd8);
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 191, 255, 0.2);
+      }
+      .btn-primary:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0, 191, 255, 0.4);
+      }
+      .btn-icon {
+        background-color: rgba(255, 255, 255, 0.1);
+        transition: all 0.2s ease;
+      }
+      .btn-icon:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+      .btn-icon:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+      #historyPanel::-webkit-scrollbar,
+      #editorPanel::-webkit-scrollbar {
+        width: 8px;
+      }
+      #historyPanel::-webkit-scrollbar-track,
+      #editorPanel::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #historyPanel::-webkit-scrollbar-thumb,
+      #editorPanel::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: content-box;
+      }
+      #historyPanel::-webkit-scrollbar-thumb:hover,
+      #editorPanel::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
+      #historyPanel,
+      #editorPanel {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+      }
+      .cropper-container {
+        background: #111827;
+      }
+
+      /* Custom Media Players */
+      .custom-player-controls {
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+      .video-container:hover .custom-player-controls {
+        opacity: 1;
+      }
+      .progress-bar {
+        background: rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+      }
+      .progress-bar-fill {
+        background: var(--glow-color);
+      }
+
+      /* Volume Knob */
+      .knob-container {
+        position: relative;
+        width: 80px;
+        height: 80px;
+      }
+      .knob {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: radial-gradient(circle, #4a5568, #1a202c);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5),
+          inset 0 2px 2px rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        position: relative;
+      }
+      .knob::before {
+        content: "";
+        position: absolute;
+        top: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 15px;
+        background: var(--glow-color);
+        border-radius: 2px;
+        box-shadow: 0 0 5px var(--glow-color);
+      }
+
+      /* Video Fade Effects */
+      @keyframes videoFadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes videoFadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+      .video-fade-in {
+        animation: videoFadeIn 1s ease forwards;
+      }
+      .video-fade-out {
+        animation: videoFadeOut 1s ease forwards;
+      }
+    </style>
+  </head>
+  <body class="antialiased">
+    <nav class="fixed top-0 left-0 right-0 z-50 p-4">
+      <div class="container mx-auto max-w-7xl">
+        <div
+          class="bg-gray-900/50 backdrop-blur-lg flex justify-between items-center p-3 sm:p-4 rounded-2xl shadow-2xl border border-gray-700/50"
+        >
+          <div class="text-lg sm:text-xl font-bold text-white tracking-wider">
+            <span class="hidden sm:inline">All in One Suite</span>
+            <span class="sm:hidden">Suite</span>
+          </div>
+          <div class="flex items-center space-x-2">
+            <button id="undoBtn" class="btn-icon p-2 rounded-lg" title="Undo">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 15l-3-3m0 0l3-3m-3 3h8a5 5 0 015 5v1"
+                />
+              </svg>
+            </button>
+            <button id="redoBtn" class="btn-icon p-2 rounded-lg" title="Redo">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 15l3-3m0 0l-3-3m3 3H8a5 5 0 00-5 5v1"
+                />
+              </svg>
+            </button>
+            <a
+              href="https://www.instagram.com/rahmdsai/"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-primary rounded-lg ml-2 sm:ml-4 flex items-center justify-center p-2.5 sm:px-5 sm:py-2.5"
+            >
+              <svg
+                class="w-5 h-5 sm:hidden"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                />
+              </svg>
+              <span class="hidden sm:inline text-sm font-semibold"
+                >Contact Me</span
+              >
+            </a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div
+      class="container mx-auto p-4 sm:p-6 lg:p-8 flex flex-col items-center flex-grow"
+    >
+      <header class="text-center mb-12">
+        <h1
+          class="text-4xl sm:text-5xl md:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300"
+        >
+          All in One File Suite
+        </h1>
+        <p class="text-gray-400 mt-6 text-lg max-w-2xl mx-auto">
+          Analisis, edit, dan kelola file Anda dengan alat profesional dalam
+          antarmuka yang mewah.
+        </p>
+      </header>
+
+      <main class="w-full flex flex-col lg:flex-row gap-8">
+        <div class="flex-grow">
+          <div
+            id="dropZone"
+            class="w-full rounded-2xl p-8 sm:p-12 text-center cursor-pointer"
+          >
+            <div
+              class="flex flex-col items-center justify-center pointer-events-none"
+            >
+              <svg
+                class="w-16 h-16 text-gray-500 mb-4"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z"
+                />
+              </svg>
+              <p class="text-xl font-semibold text-gray-200">
+                Letakkan file di sini
+              </p>
+              <p class="text-gray-500">atau klik untuk memilih</p>
+            </div>
+            <input type="file" id="fileInput" class="hidden" multiple />
+          </div>
+
+          <div
+            id="fileToolbar"
+            class="w-full mt-6 flex flex-col sm:flex-row justify-between items-center gap-4 hidden"
+          >
+            <div class="flex items-center space-x-2">
+              <select
+                id="filterSelect"
+                class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="all">Semua Jenis</option>
+                <option value="image">Gambar</option>
+                <option value="audio">Audio</option>
+                <option value="video">Video</option>
+                <option value="document">Dokumen</option>
+                <option value="archive">Arsip</option>
+              </select>
+              <select
+                id="sortSelect"
+                class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="date-desc">Tanggal (Terbaru)</option>
+                <option value="date-asc">Tanggal (Terlama)</option>
+                <option value="name-asc">Nama (A-Z)</option>
+                <option value="name-desc">Nama (Z-A)</option>
+                <option value="size-desc">Ukuran (Terbesar)</option>
+                <option value="size-asc">Ukuran (Terkecil)</option>
+              </select>
+            </div>
+            <div class="flex items-center space-x-2">
+              <button
+                id="viewToggle"
+                class="btn-icon p-2 rounded-lg"
+                title="Ganti Tampilan"
+              ></button>
+              <button
+                id="clearButton"
+                class="px-5 py-2 text-sm font-medium text-white bg-red-600/80 rounded-lg hover:bg-red-600"
+              >
+                Hapus Semua
+              </button>
+            </div>
+          </div>
+
+          <div id="fileInfo" class="w-full mt-4">
+            <p
+              id="emptyState"
+              class="text-center text-gray-500 text-lg py-8 col-span-full"
+            >
+              Hasil analisis file akan muncul di sini.
+            </p>
+          </div>
+        </div>
+        <aside class="w-full lg:w-80 lg:flex-shrink-0">
+          <div class="sticky top-24">
+            <h2 class="text-xl font-bold mb-4">Riwayat Aktivitas</h2>
+            <div
+              id="historyPanel"
+              class="bg-gray-900/50 backdrop-blur-lg border border-gray-700/50 rounded-2xl p-4 h-96 overflow-y-auto"
+            >
+              <p id="emptyHistory" class="text-gray-500 text-center mt-4">
+                Belum ada aktivitas.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <footer class="w-full text-center p-6 text-gray-500 text-sm">
+      <p>By Rahmad Sains</p>
+      <p>© 2025 All rights reserved.</p>
+    </footer>
+
+    <!-- Modal -->
+    <div
+      id="previewModal"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 modal-overlay hidden"
+    >
+      <div
+        class="rounded-xl shadow-2xl w-full max-w-7xl h-full max-h-[90vh] flex flex-col md:flex-row modal-content overflow-hidden"
+      >
+        <div
+          id="modalBody"
+          class="flex-1 p-4 sm:p-6 flex items-center justify-center bg-black/20 overflow-auto relative min-w-0"
+        ></div>
+        <div
+          id="editorPanel"
+          class="w-full md:w-72 lg:w-80 flex-shrink-0 p-4 sm:p-6 space-y-4 overflow-y-auto border-t md:border-t-0 md:border-l border-gray-700 max-h-[50vh] md:max-h-full"
+        >
+          <h3 id="modalTitle" class="text-xl font-semibold text-white truncate">
+            Editor
+          </h3>
+          <div id="renameSection" class="space-y-2">
+            <label for="renameInput" class="text-sm font-medium"
+              >Ubah Nama</label
+            >
+            <input
+              type="text"
+              id="renameInput"
+              class="w-full bg-gray-900/70 border border-gray-600 rounded-lg px-3 py-2"
+            />
+          </div>
+
+          <div id="imageEditorTools" class="space-y-4">
+            <div>
+              <h4 class="text-sm font-medium mb-2">Transformasi</h4>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  id="rotateBtn"
+                  class="text-xs p-2 bg-gray-700 rounded-md"
+                >
+                  Putar 90°
+                </button>
+              </div>
+              <div class="text-xs text-gray-400 mt-2">
+                <p class="hidden sm:block">
+                  <b>PC:</b> Tahan Ctrl & scroll untuk zoom.
+                </p>
+                <p class="sm:hidden"><b>Mobile:</b> Cubit untuk zoom.</p>
+              </div>
+            </div>
+          </div>
+          <div id="audioEditorTools" class="space-y-4">
+            <h4 class="text-sm font-medium mb-2">Volume</h4>
+            <div class="flex justify-center">
+              <div id="volumeKnobContainer" class="knob-container">
+                <div id="volumeKnob" class="knob"></div>
+              </div>
+            </div>
+          </div>
+          <div id="videoEditorTools" class="space-y-4">
+            <div>
+              <h4 class="text-sm font-medium mb-2">Potong Video</h4>
+              <div class="flex items-center space-x-2 text-xs">
+                <input
+                  type="text"
+                  id="trimStart"
+                  placeholder="00:00"
+                  class="w-full bg-gray-900/70 border border-gray-600 rounded-lg px-2 py-1"
+                />
+                <span>-</span>
+                <input
+                  type="text"
+                  id="trimEnd"
+                  placeholder="00:00"
+                  class="w-full bg-gray-900/70 border border-gray-600 rounded-lg px-2 py-1"
+                />
+              </div>
+              <button
+                id="applyTrimBtn"
+                class="w-full text-xs p-2 bg-gray-700 rounded-md mt-2"
+              >
+                Terapkan Potongan
+              </button>
+            </div>
+            <div>
+              <h4 class="text-sm font-medium mb-2">Efek Transisi</h4>
+              <div class="grid grid-cols-2 gap-2">
+                <button
+                  id="fadeInBtn"
+                  class="text-xs p-2 bg-gray-700 rounded-md"
+                >
+                  Fade In
+                </button>
+                <button
+                  id="fadeOutBtn"
+                  class="text-xs p-2 bg-gray-700 rounded-md"
+                >
+                  Fade Out
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 border-t border-gray-700 space-y-3">
+            <div id="downloadSection">
+              <label for="formatSelect" class="text-sm font-medium"
+                >Unduh sebagai:</label
+              >
+              <select
+                id="formatSelect"
+                class="w-full bg-gray-900/70 border border-gray-600 rounded-lg px-3 py-2 mt-1"
+              >
+                <option value="image/png">PNG</option>
+                <option value="image/jpeg">JPG</option>
+                <option value="image/webp">WEBP</option>
+              </select>
+              <button
+                id="downloadBtn"
+                class="w-full mt-2 px-5 py-2.5 text-sm font-semibold text-white rounded-lg btn-primary"
+              >
+                Unduh
+              </button>
+            </div>
+            <button
+              id="closeModalBtn"
+              class="w-full px-5 py-2 text-sm font-medium bg-gray-700/80 hover:bg-gray-700 rounded-lg"
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="notification"
+      class="hidden fixed bottom-5 right-5 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg"
+    ></div>
+
+    <script>
+      // --- MAIN SCRIPT EXECUTION ---
+      document.addEventListener("DOMContentLoaded", () => {
+        // --- STATE MANAGEMENT ---
+        let appState = {
+          files: [],
+          history: [],
+          historyIndex: -1,
+          viewMode: "grid",
+          sortBy: "date-desc",
+          filterBy: "all",
+        };
+        let activeFileId = null;
+        let audioContext, analyser, sourceNode;
+        let animationFrameId;
+        let cropper;
+
+        // --- DOM ELEMENTS ---
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
+        const fileInfoDiv = document.getElementById("fileInfo");
+        const emptyState = document.getElementById("emptyState");
+        const fileToolbar = document.getElementById("fileToolbar");
+        const clearButton = document.getElementById("clearButton");
+        const historyPanel = document.getElementById("historyPanel");
+        const emptyHistory = document.getElementById("emptyHistory");
+        const undoBtn = document.getElementById("undoBtn");
+        const redoBtn = document.getElementById("redoBtn");
+        const viewToggleBtn = document.getElementById("viewToggle");
+        const sortSelect = document.getElementById("sortSelect");
+        const filterSelect = document.getElementById("filterSelect");
+        const previewModal = document.getElementById("previewModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalBody = document.getElementById("modalBody");
+        const editorPanel = document.getElementById("editorPanel");
+        const closeModalBtn = document.getElementById("closeModalBtn");
+        const renameInput = document.getElementById("renameInput");
+        const downloadBtn = document.getElementById("downloadBtn");
+        const imageEditorTools = document.getElementById("imageEditorTools");
+        const audioEditorTools = document.getElementById("audioEditorTools");
+        const videoEditorTools = document.getElementById("videoEditorTools");
+        const volumeKnob = document.getElementById("volumeKnob");
+        const downloadSection = document.getElementById("downloadSection");
+
+        // --- UTILITY FUNCTIONS ---
+        function getFileExtension(f) {
+          return f.slice(((f.lastIndexOf(".") - 1) >>> 0) + 2).toLowerCase();
+        }
+        function formatFileSize(b, d = 2) {
+          if (b === 0) return "0 Bytes";
+          const k = 1024,
+            s = ["Bytes", "KB", "MB", "GB", "TB"],
+            i = Math.floor(Math.log(b) / Math.log(k));
+          return `${parseFloat((b / Math.pow(k, i)).toFixed(d))} ${s[i]}`;
+        }
+        function formatTime(seconds) {
+          const min = Math.floor(seconds / 60);
+          const sec = Math.floor(seconds % 60);
+          return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+        }
+        function formatFileDate(d) {
+          return d
+            ? new Date(d).toLocaleString("id-ID", {
+                dateStyle: "long",
+                timeStyle: "short",
+              })
+            : "N/A";
+        }
+        function getImageDimensions(file) {
+          return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => {
+              resolve(`${img.width} x ${img.height}`);
+              URL.revokeObjectURL(img.src);
+            };
+            img.onerror = (err) => {
+              reject(err);
+              URL.revokeObjectURL(img.src);
+            };
+            img.src = URL.createObjectURL(file);
+          });
+        }
+        function getFileIcon(ext, mime) {
+          const c = "w-10 h-10 text-cyan-300";
+          switch (ext) {
+            case "pdf":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>`;
+            case "zip":
+            case "rar":
+            case "7z":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>`;
+            case "docx":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V4.125c0-.621.504-1.125 1.125-1.125h9.75c.621 0 1.125.504 1.125 1.125v3.375m-7.5 2.25h4.5m-4.5 4.5h4.5m-4.5 4.5h4.5m-7.5-1.5h4.5" /></svg>`;
+            case "xlsx":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v18H3V3zm4 4h2v2H7V7zm4 0h2v2h-2V7zm4 0h2v2h-2V7zm-8 4h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2zm-8 4h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z" /></svg>`;
+            case "pptx":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h18v12H3V3zm0 14h18v4H3v-4zm6-10h6v6H9V7z" /></svg>`;
+            case "psd":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.25 6.088c.315.12.62.25.912.392m-1.824-.784a.625.625 0 01.884 0l1.625 1.625a.625.625 0 010 .884l-1.625 1.625a.625.625 0 01-.884 0L12.75 9.25a.625.625 0 010-.884l1.5-1.5zM4.5 12.75l7.5-7.5 7.5 7.5-7.5 7.5-7.5-7.5z" /></svg>`;
+            case "ai":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15.75l-3.75-3.75M12 15.75l3.75-3.75M12 15.75V3m-3.75 9.75h7.5" /></svg>`;
+            case "sql":
+              return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-6-6h12" /></svg>`;
+          }
+          if (mime.startsWith("audio/"))
+            return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377a1.803 1.803 0 11-.99-3.467l2.31-.66a2.25 2.25 0 001.632-2.163zm0 0V7.5A2.25 2.25 0 0013.5 5.25l-1.32.377a1.803 1.803 0 01-.99-3.467l2.31-.66A2.25 2.25 0 0118 7.5v3.75m-4.5-6.25a.75.75 0 100-1.5.75.75 0 000 1.5z" /></svg>`;
+          if (mime.startsWith("video/"))
+            return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15.91 11.672a.375.375 0 010 .656l-5.603 3.113a.375.375 0 01-.557-.328V8.887c0-.286.307-.466.557-.327l5.603 3.112z" /></svg>`;
+          if (mime.startsWith("text/"))
+            return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-1.5 5.25H12" /></svg>`;
+          return `<svg class="${c}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" /></svg>`;
+        }
+        function showNotification(message, type = "success") {
+          const notification = document.getElementById("notification");
+          notification.textContent = message;
+          notification.className = `fixed bottom-5 right-5 text-white px-4 py-2 rounded-lg shadow-lg ${
+            type === "info" ? "bg-blue-500" : "bg-green-500"
+          }`;
+          notification.classList.remove("hidden");
+          setTimeout(() => notification.classList.add("hidden"), 4000);
+        }
+        function getFileType(file) {
+          const type = file.type;
+          const ext = getFileExtension(file.name);
+          if (type.startsWith("image/")) return "image";
+          if (type.startsWith("audio/")) return "audio";
+          if (type.startsWith("video/")) return "video";
+          if (["pdf", "docx", "xlsx", "pptx"].includes(ext)) return "document";
+          if (["zip", "rar", "7z"].includes(ext)) return "archive";
+          return "other";
+        }
+
+        function setupEventListeners() {
+          ["dragenter", "dragover", "dragleave", "drop"].forEach((e) =>
+            dropZone.addEventListener(e, preventDefaults)
+          );
+          ["dragenter", "dragover"].forEach((e) =>
+            dropZone.addEventListener(e, () =>
+              dropZone.classList.add("drop-zone-over")
+            )
+          );
+          ["dragleave", "drop"].forEach((e) =>
+            dropZone.addEventListener(e, () =>
+              dropZone.classList.remove("drop-zone-over")
+            )
+          );
+          dropZone.addEventListener("drop", handleDrop);
+          dropZone.addEventListener("click", () => fileInput.click());
+          fileInput.addEventListener("change", () =>
+            handleFiles(fileInput.files)
+          );
+          clearButton.addEventListener("click", () => {
+            appState.files = [];
+            saveState("Menghapus semua file");
+            renderAll();
+          });
+
+          undoBtn.addEventListener("click", undo);
+          redoBtn.addEventListener("click", redo);
+          viewToggleBtn.addEventListener("click", toggleView);
+          sortSelect.addEventListener("change", (e) => setSort(e.target.value));
+          filterSelect.addEventListener("change", (e) =>
+            setFilter(e.target.value)
+          );
+
+          closeModalBtn.addEventListener("click", closePreviewModal);
+          previewModal.addEventListener("click", (e) => {
+            if (e.target === previewModal) closePreviewModal();
+          });
+          renameInput.addEventListener("change", handleRename);
+          downloadBtn.addEventListener("click", handleDownload);
+
+          editorPanel.addEventListener("click", (e) => {
+            if (e.target.classList.contains("filter-btn"))
+              handleFilter(e.target.dataset.filter);
+            if (e.target.id === "resetFilters") handleFilter("reset");
+            if (e.target.id === "rotateBtn") rotateImage();
+            if (e.target.id === "fadeInBtn") applyVideoFade("in");
+            if (e.target.id === "fadeOutBtn") applyVideoFade("out");
+          });
+
+          let isDragging = false;
+          volumeKnob.addEventListener("mousedown", () => {
+            isDragging = true;
+          });
+          window.addEventListener("mouseup", () => {
+            isDragging = false;
+          });
+          window.addEventListener("mousemove", (e) => {
+            if (isDragging) {
+              const rect = volumeKnob.getBoundingClientRect();
+              const centerX = rect.left + rect.width / 2;
+              const centerY = rect.top + rect.height / 2;
+              const angle =
+                (Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180) /
+                  Math.PI +
+                90;
+              const rotation = Math.min(135, Math.max(-135, angle));
+              const volume = (rotation + 135) / 270;
+
+              const audioPlayer = document.getElementById("audioPlayer");
+              if (audioPlayer) audioPlayer.volume = volume;
+              volumeKnob.style.transform = `rotate(${rotation}deg)`;
+            }
+          });
+        }
+
+        function preventDefaults(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        function handleDrop(e) {
+          handleFiles(e.dataTransfer.files);
+        }
+
+        async function handleFiles(droppedFiles) {
+          if (droppedFiles.length === 0) return;
+
+          const newFilesPromises = [...droppedFiles].map(async (file) => {
+            let dimensions = null;
+            if (file.type.startsWith("image/")) {
+              try {
+                dimensions = await getImageDimensions(file);
+              } catch (e) {
+                console.error("Gagal mendapatkan dimensi gambar:", e);
+              }
+            }
+            return {
+              id: `file-${Date.now()}-${Math.random()}`,
+              originalFile: file,
+              currentName: file.name,
+              filters: {},
+              dimensions: dimensions,
+            };
+          });
+
+          const newFiles = await Promise.all(newFilesPromises);
+          appState.files.push(...newFiles);
+          saveState(`Menambahkan ${newFiles.length} file baru`);
+          renderAll();
+        }
+
+        function saveState(actionDescription) {
+          if (appState.historyIndex < appState.history.length - 1) {
+            appState.history = appState.history.slice(
+              0,
+              appState.historyIndex + 1
+            );
+          }
+          const stateToSave = {
+            files: appState.files.map((f) => ({ ...f, originalFile: null })),
+            viewMode: appState.viewMode,
+            sortBy: appState.sortBy,
+            filterBy: appState.filterBy,
+          };
+          const historyEntry = {
+            state: JSON.stringify(stateToSave),
+            description: actionDescription,
+            timestamp: new Date().toLocaleTimeString("id-ID"),
+          };
+          appState.history.push(historyEntry);
+          appState.historyIndex = appState.history.length - 1;
+          saveSession();
+          updateHistoryUI();
+          updateUndoRedoButtons();
+        }
+
+        function loadState(index) {
+          if (index < 0 || index >= appState.history.length) return;
+          const historyEntry = appState.history[index];
+          const stateToLoad = JSON.parse(historyEntry.state);
+
+          const stateFilesMap = new Map(
+            stateToLoad.files.map((f) => [f.id, f])
+          );
+          appState.files.forEach((file) => {
+            const updatedFile = stateFilesMap.get(file.id);
+            if (updatedFile) {
+              file.currentName = updatedFile.currentName;
+              file.filters = updatedFile.filters;
+              file.dimensions = updatedFile.dimensions;
+            }
+          });
+          appState.files = appState.files.filter((file) =>
+            stateFilesMap.has(file.id)
+          );
+
+          appState.viewMode = stateToLoad.viewMode;
+          appState.sortBy = stateToLoad.sortBy;
+          appState.filterBy = stateToLoad.filterBy;
+
+          appState.historyIndex = index;
+          renderAll();
+          updateUndoRedoButtons();
+        }
+
+        function undo() {
+          if (appState.historyIndex > 0) loadState(appState.historyIndex - 1);
+        }
+        function redo() {
+          if (appState.historyIndex < appState.history.length - 1)
+            loadState(appState.historyIndex + 1);
+        }
+
+        function saveSession() {
+          const sessionData = {
+            ...appState,
+            files: appState.files.map((f) => ({ ...f, originalFile: null })),
+            history: appState.history.map((h) => ({
+              ...h,
+              state: JSON.parse(h.state),
+            })),
+          };
+          localStorage.setItem(
+            "fileStudioSession",
+            JSON.stringify(sessionData)
+          );
+        }
+
+        function loadSession() {
+          const savedSession = localStorage.getItem("fileStudioSession");
+          if (savedSession) {
+            const parsedSession = JSON.parse(savedSession);
+            appState = {
+              ...parsedSession,
+              files: [],
+              history: parsedSession.history.map((h) => ({
+                ...h,
+                state: JSON.stringify(h.state),
+              })),
+            };
+            showNotification(
+              "Sesi sebelumnya dipulihkan. Silakan tambahkan kembali file Anda.",
+              "info"
+            );
+          } else {
+            saveState("Initial state");
+          }
+        }
+
+        function renderAll() {
+          renderFileCards();
+          updateHistoryUI();
+          updateUndoRedoButtons();
+          updateToolbar();
+        }
+
+        function renderFileCards() {
+          if (appState.files.length === 0) {
+            fileInfoDiv.innerHTML = "";
+            fileInfoDiv.appendChild(emptyState);
+            fileToolbar.classList.add("hidden");
+            return;
+          }
+
+          fileToolbar.classList.remove("hidden");
+          fileInfoDiv.innerHTML = "";
+
+          const processedFiles = getProcessedFiles();
+
+          fileInfoDiv.className =
+            appState.viewMode === "grid"
+              ? "w-full mt-4 grid grid-cols-1 xl:grid-cols-2 gap-6"
+              : "w-full mt-4 flex flex-col gap-4";
+
+          processedFiles.forEach((file) => {
+            const card =
+              appState.viewMode === "grid"
+                ? createGridCard(file)
+                : createListCard(file);
+            fileInfoDiv.appendChild(card);
+          });
+        }
+
+        function getProcessedFiles() {
+          let processed = [...appState.files];
+          if (appState.filterBy !== "all") {
+            processed = processed.filter(
+              (file) => getFileType(file.originalFile) === appState.filterBy
+            );
+          }
+          const [sortBy, sortDir] = appState.sortBy.split("-");
+          processed.sort((a, b) => {
+            let valA, valB;
+            switch (sortBy) {
+              case "name":
+                valA = a.currentName.toLowerCase();
+                valB = b.currentName.toLowerCase();
+                break;
+              case "size":
+                valA = a.originalFile.size;
+                valB = b.originalFile.size;
+                break;
+              default:
+                valA = a.originalFile.lastModified;
+                valB = b.originalFile.lastModified;
+                break;
+            }
+            if (valA < valB) return sortDir === "asc" ? -1 : 1;
+            if (valA > valB) return sortDir === "asc" ? 1 : -1;
+            return 0;
+          });
+          return processed;
+        }
+
+        function updateToolbar() {
+          sortSelect.value = appState.sortBy;
+          filterSelect.value = appState.filterBy;
+          viewToggleBtn.innerHTML =
+            appState.viewMode === "grid"
+              ? `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" /></svg>`
+              : `<svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>`;
+        }
+
+        function toggleView() {
+          appState.viewMode = appState.viewMode === "grid" ? "list" : "grid";
+          saveState(`Mengubah tampilan ke ${appState.viewMode}`);
+          renderAll();
+        }
+        function setSort(value) {
+          appState.sortBy = value;
+          saveState(`Mengurutkan berdasarkan ${value}`);
+          renderAll();
+        }
+        function setFilter(value) {
+          appState.filterBy = value;
+          saveState(`Menyaring: ${value}`);
+          renderAll();
+        }
+
+        function createGridCard(file) {
+          const cardId = file.id;
+          const extension = getFileExtension(file.currentName);
+          let previewContent;
+          if (file.originalFile.type.startsWith("image/")) {
+            const fileUrl = URL.createObjectURL(file.originalFile);
+            previewContent = `<img src="${fileUrl}" alt="Pratinjau" class="w-full h-full object-cover">`;
+          } else {
+            previewContent = getFileIcon(extension, file.originalFile.type);
+          }
+
+          const fileCard = document.createElement("div");
+          fileCard.id = cardId;
+          fileCard.className =
+            "file-info-card rounded-2xl p-5 flex flex-col space-y-4 fade-in";
+          fileCard.innerHTML = `
+                <div class="flex items-center space-x-4">
+                    <div class="flex-shrink-0 w-16 h-16 bg-gray-900/50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-700">${previewContent}</div>
+                    <div class="flex-1 min-w-0">
+                        <h3 class="text-lg font-semibold text-white truncate" title="${
+                          file.currentName
+                        }">${file.currentName}</h3>
+                        <p class="text-sm text-gray-400 mt-1">Diubah: ${formatFileDate(
+                          file.originalFile.lastModifiedDate
+                        )}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="bg-gray-900/50 p-3 rounded-lg"><span class="font-semibold text-gray-400">Ukuran:</span><br>${formatFileSize(
+                      file.originalFile.size
+                    )}</div>
+                    <div class="bg-gray-900/50 p-3 rounded-lg"><span class="font-semibold text-gray-400">Ekstensi:</span><br>${
+                      extension.toUpperCase() || "N/A"
+                    }</div>
+                    ${
+                      file.dimensions
+                        ? `<div class="bg-gray-900/50 p-3 rounded-lg col-span-2"><span class="font-semibold text-gray-400">Dimensi:</span><br>${file.dimensions}</div>`
+                        : ""
+                    }
+                </div>
+                <div class="flex items-center justify-end space-x-2 pt-4 border-t border-gray-700/50">
+                     <button class="preview-btn text-sm px-4 py-2 bg-blue-600/80 hover:bg-blue-600 rounded-lg transition-colors">Lihat & Edit</button>
+                </div>
+            `;
+          fileCard
+            .querySelector(".preview-btn")
+            .addEventListener("click", () => openPreviewModal(file.id));
+          return fileCard;
+        }
+
+        function createListCard(file) {
+          const cardId = file.id;
+          const extension = getFileExtension(file.currentName);
+          let previewContent;
+          if (file.originalFile.type.startsWith("image/")) {
+            const fileUrl = URL.createObjectURL(file.originalFile);
+            previewContent = `<img src="${fileUrl}" alt="Pratinjau" class="w-full h-full object-cover rounded-lg">`;
+          } else {
+            previewContent = getFileIcon(extension, file.originalFile.type);
+          }
+
+          const fileCard = document.createElement("div");
+          fileCard.id = cardId;
+          fileCard.className =
+            "file-info-card rounded-xl p-3 flex items-center space-x-4 fade-in";
+          fileCard.innerHTML = `
+                <div class="flex-shrink-0 w-10 h-10 bg-gray-900/50 rounded-lg flex items-center justify-center overflow-hidden border border-gray-700">${previewContent}</div>
+                <div class="flex-1 min-w-0">
+                    <h3 class="font-semibold text-white truncate" title="${
+                      file.currentName
+                    }">${file.currentName}</h3>
+                </div>
+                <div class="hidden md:block text-sm text-gray-400">${formatFileSize(
+                  file.originalFile.size
+                )}</div>
+                <div class="hidden sm:block text-sm text-gray-400">${formatFileDate(
+                  file.originalFile.lastModifiedDate
+                )}</div>
+                <button class="preview-btn text-sm px-3 py-1.5 bg-blue-600/80 hover:bg-blue-600 rounded-lg transition-colors flex-shrink-0">Buka</button>
+            `;
+          fileCard
+            .querySelector(".preview-btn")
+            .addEventListener("click", () => openPreviewModal(file.id));
+          return fileCard;
+        }
+
+        function updateHistoryUI() {
+          if (appState.history.length <= 1) {
+            historyPanel.innerHTML = "";
+            historyPanel.appendChild(emptyHistory);
+            return;
+          }
+
+          historyPanel.innerHTML = "";
+
+          for (let i = 1; i < appState.history.length; i++) {
+            const entry = appState.history[i];
+            const historyItem = document.createElement("div");
+            historyItem.className = `p-2 rounded-md text-sm ${
+              i === appState.historyIndex ? "bg-blue-600/30" : ""
+            }`;
+            historyItem.innerHTML = `<p class="font-medium">${entry.description}</p><p class="text-xs text-gray-400">${entry.timestamp}</p>`;
+            historyPanel.prepend(historyItem);
+          }
+        }
+
+        function updateUndoRedoButtons() {
+          undoBtn.disabled = appState.historyIndex <= 0;
+          redoBtn.disabled =
+            appState.historyIndex >= appState.history.length - 1;
+        }
+
+        function openPreviewModal(fileId) {
+          activeFileId = fileId;
+          const file = appState.files.find((f) => f.id === fileId);
+          if (!file) return;
+
+          modalTitle.textContent = file.currentName;
+          modalBody.innerHTML = `<p class="text-center text-gray-400">Memuat pratinjau...</p>`;
+          previewModal.classList.remove("hidden");
+
+          const fileType = getFileType(file.originalFile);
+
+          imageEditorTools.style.display =
+            fileType === "image" ? "block" : "none";
+          audioEditorTools.style.display =
+            fileType === "audio" ? "block" : "none";
+          videoEditorTools.style.display =
+            fileType === "video" ? "block" : "none";
+          downloadSection.style.display =
+            fileType === "image" ? "block" : "none";
+          editorPanel.style.display = [
+            "image",
+            "audio",
+            "video",
+            "text",
+          ].includes(fileType)
+            ? "flex"
+            : "none";
+          editorPanel.classList.add("flex-col");
+
+          if (fileType === "image") {
+            renameInput.value = file.currentName;
+            const img = document.createElement("img");
+            img.style.display = "block";
+            img.style.maxWidth = "100%";
+            img.src = URL.createObjectURL(file.originalFile);
+            modalBody.innerHTML = "";
+            modalBody.appendChild(img);
+            cropper = new Cropper(img, { viewMode: 1 });
+          } else if (fileType === "audio") {
+            const fileUrl = URL.createObjectURL(file.originalFile);
+            modalBody.innerHTML = `<div class="w-full flex flex-col items-center justify-center space-y-4"><canvas id="audioVisualizer" class="w-full h-40"></canvas><audio id="audioPlayer" src="${fileUrl}" class="w-full"></audio><div id="customAudioControls"></div></div>`;
+            setupCustomAudioPlayer();
+          } else if (fileType === "video") {
+            const fileUrl = URL.createObjectURL(file.originalFile);
+            modalBody.innerHTML = `<div class="relative w-full max-w-4xl mx-auto video-container"><video id="videoPlayer" src="${fileUrl}" class="w-full rounded-lg"></video><div id="customVideoControls"></div></div>`;
+            setupCustomVideoPlayer();
+          } else if (fileType === "archive") {
+            handleZipPreview(file.originalFile);
+          } else if (file.originalFile.type === "application/pdf") {
+            const fileUrl = URL.createObjectURL(file.originalFile);
+            modalBody.innerHTML = `<iframe src="${fileUrl}" class="w-full h-[80vh]" frameborder="0"></iframe>`;
+          } else if (
+            fileType === "other" ||
+            file.originalFile.type.startsWith("text/") ||
+            getFileExtension(file.originalFile.name) === "docx"
+          ) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              if (getFileExtension(file.originalFile.name) === "docx") {
+                docx.renderAsync(e.target.result, modalBody);
+              } else {
+                const content = `<pre><code class="language-${getFileExtension(
+                  file.currentName
+                )}">${e.target.result
+                  .replace(/</g, "&lt;")
+                  .replace(/>/g, "&gt;")}</code></pre>`;
+                modalBody.innerHTML = content;
+                hljs.highlightElement(modalBody.querySelector("code"));
+              }
+            };
+
+            if (getFileExtension(file.originalFile.name) === "docx") {
+              reader.readAsArrayBuffer(file.originalFile);
+            } else {
+              reader.readAsText(file.originalFile);
+            }
+            editorPanel.style.display = "none";
+          } else {
+            modalBody.innerHTML = `<p class="text-center text-gray-400">Pratinjau tidak tersedia untuk tipe file ini.</p>`;
+          }
+        }
+
+        async function handleZipPreview(file) {
+          modalBody.innerHTML = `<p class="text-center text-gray-400">Membaca arsip...</p>`;
+          try {
+            const jszip = new JSZip();
+            const zip = await jszip.loadAsync(file);
+            let content = '<ul class="list-disc list-inside text-left">';
+            zip.forEach((relativePath, zipEntry) => {
+              content += `<li class="truncate">${
+                zipEntry.name
+              } <span class="text-gray-500 text-xs">${formatFileSize(
+                zipEntry._data.uncompressedSize || 0
+              )}</span></li>`;
+            });
+            content += "</ul>";
+            modalBody.innerHTML = content;
+          } catch (e) {
+            modalBody.innerHTML = `<p class="text-center text-red-400">Gagal membaca file arsip.</p>`;
+            console.error(e);
+          }
+        }
+
+        function applyCrop() {
+          if (!cropper) return;
+          const croppedCanvas = cropper.getCroppedCanvas();
+          modalBody.innerHTML = "";
+          modalBody.appendChild(croppedCanvas);
+          cropper.destroy();
+          cropper = new Cropper(croppedCanvas, { viewMode: 1 });
+          saveState(
+            `Memangkas gambar: ${
+              appState.files.find((f) => f.id === activeFileId).currentName
+            }`
+          );
+        }
+
+        function rotateImage() {
+          if (cropper) cropper.rotate(90);
+          saveState(
+            `Memutar gambar: ${
+              appState.files.find((f) => f.id === activeFileId).currentName
+            }`
+          );
+        }
+
+        function applyText() {
+          if (!cropper) return;
+          const text = document.getElementById("textInput").value;
+          if (!text) return;
+
+          const canvas = cropper.getCroppedCanvas();
+          const ctx = canvas.getContext("2d");
+          ctx.font = "bold 48px Inter";
+          ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+          cropper.replace(canvas.toDataURL());
+          saveState(
+            `Menambah teks pada: ${
+              appState.files.find((f) => f.id === activeFileId).currentName
+            }`
+          );
+        }
+
+        function handleDownload() {
+          const file = appState.files.find((f) => f.id === activeFileId);
+          if (!file || !cropper) return;
+
+          const format = document.getElementById("formatSelect").value;
+          const canvas = cropper.getCroppedCanvas();
+          const ctx = canvas.getContext("2d");
+
+          // Apply filters before drawing watermark
+          let filterString = Object.entries(file.filters)
+            .map(
+              ([key, value]) =>
+                `${key}(${value}${
+                  key === "blur" ? "px" : key === "hue-rotate" ? "deg" : "%"
+                })`
+            )
+            .join(" ");
+          ctx.filter = filterString;
+
+          // Redraw the (potentially filtered) image from the cropper's source
+          const sourceCanvas = cropper.getCroppedCanvas();
+          ctx.drawImage(sourceCanvas, 0, 0);
+
+          // Add watermark
+          const watermarkText = "By Rahmad Sains";
+          const padding = 20;
+          ctx.font = "bold 24px Inter"; // Font size for watermark
+          const textMetrics = ctx.measureText(watermarkText);
+          const textWidth = textMetrics.width;
+          const textHeight = 24; // Approximate height
+
+          const rectX = canvas.width - textWidth - padding * 2;
+          const rectY = canvas.height - textHeight - padding * 2;
+          const rectWidth = textWidth + padding;
+          const rectHeight = textHeight + padding;
+
+          ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+          ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.roundRect(rectX, rectY, rectWidth, rectHeight, 8); // Rounded rectangle
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
+          ctx.textAlign = "right";
+          ctx.textBaseline = "bottom";
+          ctx.fillText(
+            watermarkText,
+            canvas.width - padding,
+            canvas.height - padding
+          );
+
+          canvas.toBlob((blob) => {
+            const link = document.createElement("a");
+            const name =
+              file.currentName.replace(/\.[^/.]+$/, "") +
+              "." +
+              format.split("/")[1];
+            link.download = name;
+            link.href = URL.createObjectURL(blob);
+            link.click();
+            URL.revokeObjectURL(link.href);
+          }, format);
+        }
+
+        function handleRename(e) {
+          const file = appState.files.find((f) => f.id === activeFileId);
+          if (!file) return;
+          const oldName = file.currentName;
+          file.currentName = e.target.value;
+          saveState(`Mengubah nama: "${oldName}" -> "${file.currentName}"`);
+          renderAll();
+        }
+
+        function handleFilter(filterType) {
+          const file = appState.files.find((f) => f.id === activeFileId);
+          if (!file || !cropper) return;
+
+          if (filterType === "reset") {
+            file.filters = {};
+          } else {
+            const defaultValues = {
+              saturate: 200,
+              contrast: 150,
+              brightness: 150,
+              blur: 5,
+              "hue-rotate": 90,
+            };
+            const toggleValue = defaultValues[filterType] || 100;
+            file.filters[filterType] = file.filters[filterType]
+              ? 0
+              : toggleValue;
+            if (file.filters[filterType] === 0) delete file.filters[filterType];
+          }
+
+          const cropperImage = modalBody.querySelector(".cropper-canvas img");
+
+          if (cropperImage) {
+            let filterString = Object.entries(file.filters)
+              .map(
+                ([key, value]) =>
+                  `${key}(${value}${
+                    key === "blur" ? "px" : key === "hue-rotate" ? "deg" : "%"
+                  })`
+              )
+              .join(" ");
+            cropperImage.style.filter = filterString;
+          }
+
+          saveState(
+            `Menerapkan filter ${filterType} pada: ${file.currentName}`
+          );
+        }
+
+        function applyVideoFade(type) {
+          const video = document.getElementById("videoPlayer");
+          if (!video) return;
+          const className = type === "in" ? "video-fade-in" : "video-fade-out";
+          video.classList.remove("video-fade-in", "video-fade-out");
+          setTimeout(() => video.classList.add(className), 50);
+          saveState(
+            `Menerapkan ${type === "in" ? "Fade In" : "Fade Out"} pada video`
+          );
+        }
+
+        function closePreviewModal() {
+          if (cropper) {
+            cropper.destroy();
+            cropper = null;
+          }
+          const audioPlayer = document.getElementById("audioPlayer");
+          if (audioPlayer) {
+            audioPlayer.pause();
+            audioPlayer.src = "";
+          }
+          if (animationFrameId) cancelAnimationFrame(animationFrameId);
+          if (sourceNode) {
+            sourceNode.disconnect();
+            sourceNode = null;
+          }
+          const iframe = document
+            .getElementById("modalBody")
+            .querySelector("iframe");
+          if (iframe && iframe.src) URL.revokeObjectURL(iframe.src);
+          document.getElementById("previewModal").classList.add("hidden");
+          document.getElementById("modalBody").innerHTML = "";
+          activeFileId = null;
+        }
+
+        function setupCustomAudioPlayer() {
+          const audioPlayer = document.getElementById("audioPlayer");
+          const controlsContainer = document.getElementById(
+            "customAudioControls"
+          );
+          if (!audioPlayer || !controlsContainer) return;
+
+          controlsContainer.innerHTML = `
+                <div class="w-full mt-2">
+                    <div class="progress-bar h-2 rounded-full w-full"><div class="progress-bar-fill h-full rounded-full w-0"></div></div>
+                    <div class="flex justify-between items-center mt-2 text-xs">
+                        <span class="currentTime">0:00</span>
+                        <button class="playPauseBtn p-2 rounded-full bg-gray-700"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path></svg></button>
+                        <span class="duration">0:00</span>
+                    </div>
+                </div>
+            `;
+
+          const playPauseBtn = controlsContainer.querySelector(".playPauseBtn");
+          const progressBar = controlsContainer.querySelector(".progress-bar");
+          const progressBarFill =
+            controlsContainer.querySelector(".progress-bar-fill");
+          const currentTimeEl = controlsContainer.querySelector(".currentTime");
+          const durationEl = controlsContainer.querySelector(".duration");
+
+          const playIcon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path></svg>`;
+          const pauseIcon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zm7 0a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z"></path></svg>`;
+
+          playPauseBtn.addEventListener("click", () => {
+            if (audioPlayer.paused) audioPlayer.play();
+            else audioPlayer.pause();
+          });
+
+          audioPlayer.addEventListener("play", () => {
+            playPauseBtn.innerHTML = pauseIcon;
+            setupAudioVisualizer();
+          });
+          audioPlayer.addEventListener("pause", () => {
+            playPauseBtn.innerHTML = pauseIcon;
+            cancelAnimationFrame(animationFrameId);
+          });
+
+          audioPlayer.addEventListener("loadedmetadata", () => {
+            durationEl.textContent = formatTime(audioPlayer.duration);
+          });
+
+          audioPlayer.addEventListener("timeupdate", () => {
+            currentTimeEl.textContent = formatTime(audioPlayer.currentTime);
+            const progress =
+              (audioPlayer.currentTime / audioPlayer.duration) * 100;
+            progressBarFill.style.width = `${progress}%`;
+          });
+
+          progressBar.addEventListener("click", (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            audioPlayer.currentTime = (clickX / width) * audioPlayer.duration;
+          });
+        }
+
+        function setupCustomVideoPlayer() {
+          const video = document.getElementById("videoPlayer");
+          const controlsContainer = document.getElementById(
+            "customVideoControls"
+          );
+          if (!video || !controlsContainer) return;
+
+          controlsContainer.innerHTML = `
+                <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent custom-player-controls">
+                    <div class="progress-bar h-1.5 rounded-full w-full mb-2"><div class="progress-bar-fill h-full rounded-full w-0"></div></div>
+                    <div class="flex justify-between items-center text-xs">
+                        <button class="playPauseBtn p-2 rounded-full hover:bg-white/20"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path></svg></button>
+                        <div class="flex items-center space-x-2">
+                            <span class="currentTime">0:00</span> / <span class="duration">0:00</span>
+                        </div>
+                        <button class="fullscreenBtn p-2 rounded-full hover:bg-white/20"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1v4m0 0h-4m4 0l-5-5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 0h-4m4 0l-5 5"></path></svg></button>
+                    </div>
+                </div>
+            `;
+
+          const playPauseBtn = controlsContainer.querySelector(".playPauseBtn");
+          const progressBar = controlsContainer.querySelector(".progress-bar");
+          const progressBarFill =
+            controlsContainer.querySelector(".progress-bar-fill");
+          const currentTimeEl = controlsContainer.querySelector(".currentTime");
+          const durationEl = controlsContainer.querySelector(".duration");
+          const fullscreenBtn =
+            controlsContainer.querySelector(".fullscreenBtn");
+
+          const playIcon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"></path></svg>`;
+          const pauseIcon = `<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zm7 0a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z"></path></svg>`;
+
+          playPauseBtn.addEventListener("click", () => {
+            if (video.paused) video.play();
+            else video.pause();
+          });
+          video.addEventListener("click", () => {
+            if (video.paused) video.play();
+            else video.pause();
+          });
+          video.addEventListener("play", () => {
+            playPauseBtn.innerHTML = pauseIcon;
+          });
+          video.addEventListener("pause", () => {
+            playPauseBtn.innerHTML = playIcon;
+          });
+          video.addEventListener("loadedmetadata", () => {
+            durationEl.textContent = formatTime(video.duration);
+          });
+          video.addEventListener("timeupdate", () => {
+            currentTimeEl.textContent = formatTime(video.currentTime);
+            const progress = (video.currentTime / video.duration) * 100;
+            progressBarFill.style.width = `${progress}%`;
+          });
+          progressBar.addEventListener("click", (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            video.currentTime =
+              ((e.clientX - rect.left) / rect.width) * video.duration;
+          });
+          fullscreenBtn.addEventListener("click", () => {
+            if (!document.fullscreenElement) {
+              video.parentElement.requestFullscreen();
+            } else {
+              document.exitFullscreen();
+            }
+          });
+        }
+
+        function setupAudioVisualizer() {
+          const audioPlayer = document.getElementById("audioPlayer");
+          if (!audioPlayer) return;
+
+          audioPlayer.onplay = () => {
+            if (!audioContext) {
+              audioContext = new (window.AudioContext ||
+                window.webkitAudioContext)();
+              sourceNode = audioContext.createMediaElementSource(audioPlayer);
+              analyser = audioContext.createAnalyser();
+              sourceNode.connect(analyser);
+              analyser.connect(audioContext.destination);
+            }
+            analyser.fftSize = 256;
+            const bufferLength = analyser.frequencyBinCount;
+            const dataArray = new Uint8Array(bufferLength);
+            const canvas = document.getElementById("audioVisualizer");
+            const canvasCtx = canvas.getContext("2d");
+
+            function draw() {
+              if (!previewModal.classList.contains("hidden")) {
+                animationFrameId = requestAnimationFrame(draw);
+              }
+              analyser.getByteFrequencyData(dataArray);
+              canvasCtx.fillStyle = "#111827";
+              canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+              const barWidth = (canvas.width / bufferLength) * 2.5;
+              let barHeight;
+              let x = 0;
+              for (let i = 0; i < bufferLength; i++) {
+                barHeight = dataArray[i];
+                const gradient = canvasCtx.createLinearGradient(
+                  0,
+                  0,
+                  0,
+                  canvas.height
+                );
+                gradient.addColorStop(0, `rgb(0, 191, 255)`);
+                gradient.addColorStop(1, `rgb(138, 43, 226)`);
+                canvasCtx.fillStyle = gradient;
+                canvasCtx.fillRect(
+                  x,
+                  canvas.height - barHeight / 2,
+                  barWidth,
+                  barHeight / 2
+                );
+                x += barWidth + 1;
+              }
+            }
+            draw();
+          };
+
+          audioPlayer.onpause = () => {
+            cancelAnimationFrame(animationFrameId);
+          };
+        }
+
+        // Initial call
+        loadSession();
+        renderAll();
+        setupEventListeners();
+      });
+    </script>
+  </body>
+</html>
